@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import Header from "./components/Header";
+import { useEffect, useState, createContext } from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export const ThemeContext = createContext();
+
+export default () => {
+    const [theme, setTheme] = useState("light");
+    const [interests, setInterests] = useState([]);
+
+    useEffect(() => {
+        // fetch("http://localhost:3001/interests")
+        //     .then((resp) => resp.json())
+        //     .then((data) => setInterests(data))
+        //     .catch((error) => setInterests([]));
+
+        (async () => {
+            try {
+                const resp = await fetch("http://localhost:3001/interests");
+
+                const data = await resp.json();
+
+                setInterests(data);
+            } catch (error) {
+                setInterests([]);
+            }
+        })();
+    }, []);
+
+    const toggleTheme = (event) => setTheme(theme === 'light' ? "dark" : "light");
+
+    return <ThemeContext.Provider value={{theme, toggleTheme}}>
+        <Header />
+
+        <main style={{textAlign: "center"}}>
+            {
+                interests.map((interest, index) => {
+                    return <p key={index}>{`${index+1}. ${interest}`}</p>
+                })
+            }
+        </main>
+    </ThemeContext.Provider>
 }
-
-export default App;
